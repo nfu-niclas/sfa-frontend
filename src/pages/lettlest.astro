@@ -1,0 +1,68 @@
+---
+import Base from "@/layouts/Base.astro";
+import PageHeader from "@/partials/PageHeader.astro";
+import { getEasyReadArticles, urlFor } from "@/lib/sanity";
+
+const articles = await getEasyReadArticles();
+---
+
+<Base title="Lettlest" description="Artikler skrevet på en enkel og lettfattelig måte">
+  <PageHeader title="Lettlest" />
+  <section class="section-sm">
+    <div class="container">
+      
+      <p class="text-center text-lg text-gray-600 mb-12">
+        Her finner du artikler som er skrevet på en enkel og lettfattelig måte.
+      </p>
+      
+      {articles.length > 0 ? (
+        <div class="row">
+          {articles.map((article: any) => (
+            <div class="col-12 md:col-6 mb-8">
+              <article class="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+                
+                {article.mainImage && (
+                  <a href={`/artikler/${article.slug.current}`}>
+                    <img 
+                      src={urlFor(article.mainImage).width(600).height(350).url()} 
+                      alt={article.mainImage.alt || article.displayTitle}
+                      class="w-full h-48 object-cover"
+                    />
+                  </a>
+                )}
+                
+                <div class="p-6">
+                  <div class="mb-3">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                      Lettlest
+                    </span>
+                  </div>
+                  
+                  <h2 class="text-xl font-bold mb-3">
+                    <a 
+                      href={`/artikler/${article.slug.current}`}
+                      class="hover:text-primary transition-colors"
+                    >
+                      {article.displayTitle || article.title}
+                    </a>
+                  </h2>
+                  
+                  {article.standfirst && (
+                    <p class="text-gray-600 mb-4">{article.standfirst}</p>
+                  )}
+                </div>
+                
+              </article>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <h2 class="text-xl font-semibold mb-2">Ingen lettlest-artikler ennå</h2>
+          <p class="text-gray-600">Kom tilbake snart!</p>
+        </div>
+      )}
+      
+    </div>
+  </section>
+</Base>

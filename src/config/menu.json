@@ -1,0 +1,42 @@
+{
+  "main": [
+    {
+      "name": "Hjem",
+      "url": "/"
+    },
+    {
+      "name": "Artikler",
+      "url": "/artikler"
+    },
+    {
+      "name": "Lettlest",
+      "url": "/lettlest"
+    },
+    {
+      "name": "Om oss",
+      "url": "/om-oss"
+    },
+    {
+      "name": "Kontakt",
+      "url": "/kontakt"
+    },
+    {
+      "name": "Søk",
+      "url": "/sok"
+    }
+  ],
+  "footer": [
+    {
+      "name": "Om oss",
+      "url": "/om-oss"
+    },
+    {
+      "name": "Kontakt",
+      "url": "/kontakt"
+    },
+    {
+      "name": "Personvern",
+      "url": "/personvern"
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+---
+import Base from "@/layouts/Base.astro";
+import { getArticles, urlFor } from "@/lib/sanity";
+
+const articles = await getArticles();
+const featuredArticle = articles[0];
+const secondaryArticles = articles.slice(1, 4);
+const remainingArticles = articles.slice(4, 10);
+---
+
+<Base title="Samfunn for alle">
+  
+  <!-- Hovedseksjon: Featured + Sekundære -->
+  <section class="section pt-8 pb-4">
+    <div class="container">
+      <div class="grid gap-6 lg:grid-cols-3">
+        
+        <!-- Hovedsak (stor) - IKKE lazy load, dette er LCP -->
+        {featuredArticle && (
+          <article class="lg:col-span-2 group">
+            <a href={`/artikler/${featuredArticle.slug.current}`} class="block relative overflow-hidden rounded-xl">
+              {featuredArticle.mainImage && (
+                <img 
+                  src={urlFor(featuredArticle.mainImage).width(900).height(500).url()} 
+                  alt={featuredArticle.mainImage.alt || featuredArticle.displayTitle || "Hovedbilde"}
+                  width="900"
+                  height="500"
+                  decoding="async"
+                  fetchpriority="high"
+                  class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              )}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                {featuredArticle.categories && featuredArticle.categories[0] && (
+                  <span class="inline-block px-3 py-1 mb-3 text-sm font-semibold bg-primary text-white rounded">
+                    {featuredArticle.categories[0].title}
+                  </span>
+                )}
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 leading-tight text-white">
+                  {featuredArticle.displayTitle || featuredArticle.title}
+                </h1>
+                {featuredArticle.standfirst && (
+                  <p class="text-gray-100 text-lg hidden md:block">
+                    {featuredArticle.standfirst}
+                  </p>
+                )}
+              </div>
+            </a>
+          </article>
+        )}
+        
+        <!-- Sekundære saker (høyre kolonne) -->
+        <div class="flex flex-col gap-4">
+          {secondaryArticles.map((article: any) => {
+            const title = article.shortTitle || article.displayTitle || article.title;
+            const titleLength = title.length;
+            let titleClass = "text-lg font-bold";
+            if (titleLength > 50) {
+              titleClass = "text-sm font-bold";
+            } else if (titleLength > 35) {
+              titleClass = "text-base font-bold";
+            }
+            
+            return (
+              <article class="group flex gap-4 bg-white dark:bg-darkmode-body rounded-lg border border-border dark:border-darkmode-border p-3 hover:shadow-md transition-shadow">
+                {article.mainImage && (
+                  <a href={`/artikler/${article.slug.current}`} class="flex-shrink-0">
+                    <img 
+                      src={urlFor(article.mainImage).width(150).height(100).url()} 
+                      alt={article.mainImage.alt || article.displayTitle || "Artikkelbilde"}
+                      width="150"
+                      height="100"
+                      loading="lazy"
+                      decoding="async"
+                      class="w-24 h-20 object-cover rounded-lg"
+                    />
+                  </a>
+                )}
+                <div class="flex-grow min-w-0 overflow-hidden">
+                  {article.categories && article.categories[0] && (
+                    <span class="text-xs font-semibold text-primary uppercase">
+                      {article.categories[0].title}
+                    </span>
+                  )}
+                  <h2 class={`${titleClass} leading-tight group-hover:text-primary transition-colors line-clamp-3`}>
+                    <a href={`/artikler/${article.slug.current}`}>
+                      {title}
+                    </a>
+                  </h2>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- Siste nytt seksjon -->
+  <section class="section py-8 bg-light dark:bg-darkmode-light">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold flex items-center gap-2">
+          <span class="w-3 h-3 bg-primary rounded-full animate-pulse"></span>
+          Siste nytt
+        </h2>
+        <a href="/artikler" class="text-primary font-medium hover:underline">
+          Se alle →
+        </a>
+      </div>
+      
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {remainingArticles.map((article: any) => (
+          <article class="group bg-white dark:bg-darkmode-body rounded-xl overflow-hidden border border-border dark:border-darkmode-border hover:shadow-lg transition-shadow">
+            {article.mainImage && (
+              <a href={`/artikler/${article.slug.current}`} class="block overflow-hidden">
+                <img 
+                  src={urlFor(article.mainImage).width(400).height(250).url()} 
+                  alt={article.mainImage.alt || article.displayTitle || "Artikkelbilde"}
+                  width="400"
+                  height="250"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </a>
+            )}
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                {article.categories && article.categories[0] && (
+                  <span class="text-xs font-semibold text-primary uppercase">
+                    {article.categories[0].title}
+                  </span>
+                )}
+                {article.publishedAt && (
+                  <span class="text-xs text-text-light dark:text-darkmode-text-light">
+                    {new Date(article.publishedAt).toLocaleDateString("nb-NO")}
+                  </span>
+                )}
+              </div>
+              <h3 class="font-bold text-lg mb-2 leading-tight group-hover:text-primary transition-colors">
+                <a href={`/artikler/${article.slug.current}`}>
+                  {article.displayTitle || article.title}
+                </a>
+              </h3>
+              {article.standfirst && (
+                <p class="text-text-light dark:text-darkmode-text-light text-sm line-clamp-2">
+                  {article.standfirst}
+                </p>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Lettlest-seksjon -->
+  <section class="section py-8">
+    <div class="container">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold flex items-center gap-2">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Lettlest
+        </h2>
+        <a href="/lettlest" class="text-primary font-medium hover:underline">
+          Se alle →
+        </a>
+      </div>
+      
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+        <p class="text-gray-600 dark:text-gray-300 mb-4">
+          Artikler skrevet på en enkel og lettfattelig måte.
+        </p>
+        <a 
+          href="/lettlest" 
+          class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
+        >
+          Utforsk lettlest
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</Base>

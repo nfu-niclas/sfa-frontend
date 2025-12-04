@@ -1,0 +1,70 @@
+---
+import Base from "@/layouts/Base.astro";
+import PageHeader from "@/partials/PageHeader.astro";
+import { getTagsWithArticles, getArticlesByTag, getTagBySlug, urlFor } from "@/lib/sanity";
+
+export async function getStaticPaths() {
+  const tags = await getTagsWithArticles();
+  return tags.map((tag: any) => ({
+    params: { slug: tag.slug.current },
+  }));
+}
+
+const { slug } = Astro.params;
+const tag = await getTagBySlug(slug as string);
+const articles = await getArticlesByTag(slug as string);
+---
+
+<Base title={tag?.title || "Emne"}>
+  <PageHeader title={tag?.title || "Emne"} />
+  
+  <section class="section-sm">
+    <div class="container">
+      
+      {articles.length > 0 ? (
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {articles.map((article: any) => (
+            <article class="group bg-white dark:bg-darkmode-light rounded-xl overflow-hidden border border-border dark:border-darkmode-border hover:shadow-lg transition-shadow">
+              {article.mainImage && (
+                <a href={`/artikler/${article.slug.current}`} class="block overflow-hidden">
+                  <img 
+                    src={urlFor(article.mainImage).width(400).height(250).url()} 
+                    alt={article.mainImage.alt || article.displayTitle}
+                    class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </a>
+              )}
+              <div class="p-4">
+                {article.categories && article.categories[0] && (
+                  <span class="text-xs font-semibold text-primary uppercase">
+                    {article.categories[0].title}
+                  </span>
+                )}
+                <h3 class="font-bold text-lg mb-2 leading-tight group-hover:text-primary transition-colors">
+                  <a href={`/artikler/${article.slug.current}`}>
+                    {article.displayTitle || article.title}
+                  </a>
+                </h3>
+                {article.standfirst && (
+                  <p class="text-text dark:text-darkmode-text text-sm">
+                    {article.standfirst}
+                  </p>
+                )}
+                {article.publishedAt && (
+                  <p class="text-text-light dark:text-darkmode-text-light text-xs mt-2">
+                    {new Date(article.publishedAt).toLocaleDateString("nb-NO")}
+                  </p>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-text dark:text-darkmode-text">Ingen artikler med dette emnet ennå.</p>
+        </div>
+      )}
+      
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,129 @@
+---
+import Base from "@/layouts/Base.astro";
+import { getAllAuthors, getAuthorBySlug, getArticlesByAuthor, urlFor } from "@/lib/sanity";
+
+export async function getStaticPaths() {
+  const authors = await getAllAuthors();
+  return authors.map((author: any) => ({
+    params: { slug: author.slug.current },
+  }));
+}
+
+const { slug } = Astro.params;
+const author = await getAuthorBySlug(slug as string);
+
+if (!author) {
+  return Astro.redirect("/404");
+}
+
+const articles = await getArticlesByAuthor(author._id);
+---
+
+<Base title={`${author.name} - Samfunn for alle`}>
+  <section class="section">
+    <div class="container max-w-4xl">
+      
+      <!-- Brødsmulesti -->
+      <nav class="mb-6 text-sm" aria-label="Brødsmulesti">
+        <ol class="flex items-center gap-2 text-text-light dark:text-darkmode-text-light">
+          <li><a href="/" class="hover:text-primary">Hjem</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li class="text-text-dark dark:text-darkmode-text-dark">{author.name}</li>
+        </ol>
+      </nav>
+      
+      <!-- Forfatter-header -->
+      <div class="mb-12 flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 bg-light dark:bg-darkmode-light rounded-xl">
+        {author.image && (
+          <img 
+            src={urlFor(author.image).width(150).height(150).url()}
+            alt={author.name}
+            class="w-32 h-32 rounded-full object-cover border-4 border-white dark:border-darkmode-border shadow-lg"
+          />
+        )}
+        <div class="text-center sm:text-left">
+          <h1 class="text-3xl font-bold text-text-dark dark:text-darkmode-text-dark mb-2">
+            {author.name}
+          </h1>
+          <p class="text-primary font-medium mb-3">{articles.length} artikler</p>
+          {author.bio && (
+            <p class="text-text-light dark:text-darkmode-text-light max-w-xl">
+              {author.bio}
+            </p>
+          )}
+          {author.email && (
+            <a 
+              href={`mailto:${author.email}`}
+              class="inline-flex items-center gap-2 mt-4 text-primary hover:underline"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              {author.email}
+            </a>
+          )}
+        </div>
+      </div>
+      
+      <!-- Artikler av forfatteren -->
+      <div>
+        <h2 class="text-2xl font-bold text-text-dark dark:text-darkmode-text-dark mb-6">
+          Artikler
+        </h2>
+        
+        {articles.length > 0 ? (
+          <div class="grid gap-6">
+            {articles.map((article: any) => (
+              <article class="flex flex-col sm:flex-row gap-4 p-4 rounded-lg bg-light dark:bg-darkmode-light border border-border dark:border-darkmode-border hover:border-primary transition-colors">
+                {article.mainImage && (
+                  <a href={`/artikler/${article.slug.current}`} class="flex-shrink-0">
+                    <img 
+                      src={urlFor(article.mainImage).width(200).height(130).url()}
+                      alt={article.mainImage.alt || article.displayTitle}
+                      class="w-full sm:w-48 h-32 object-cover rounded-lg"
+                    />
+                  </a>
+                )}
+                <div class="flex flex-col justify-center">
+                  {article.categories && article.categories.length > 0 && (
+                    <div class="flex gap-2 mb-2">
+                      {article.categories.slice(0, 2).map((cat: any) => (
+                        <a href={`/kategori/${cat.slug.current}`} class="text-xs font-medium text-primary uppercase hover:underline">
+                          {cat.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  <a href={`/artikler/${article.slug.current}`}>
+                    <h3 class="text-lg font-bold text-text-dark dark:text-darkmode-text-dark hover:text-primary transition-colors">
+                      {article.displayTitle || article.title}
+                    </h3>
+                  </a>
+                  {article.standfirst && (
+                    <p class="text-sm text-text-light dark:text-darkmode-text-light mt-1 line-clamp-2">
+                      {article.standfirst}
+                    </p>
+                  )}
+                  {article.publishedAt && (
+                    <p class="text-xs text-text-light dark:text-darkmode-text-light mt-2">
+                      {new Date(article.publishedAt).toLocaleDateString("nb-NO", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                      })}
+                    </p>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="text-text-light dark:text-darkmode-text-light">
+            Ingen artikler funnet.
+          </p>
+        )}
+      </div>
+      
+    </div>
+  </section>
+</Base>

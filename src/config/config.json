@@ -1,0 +1,51 @@
+{
+  "site": {
+    "title": "Samfunn for alle",
+    "base_url": "https://samfunnforalle.cloud",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/images/favicon.png",
+    "logo": "/images/logo.png",
+    "logo_darkmode": "/images/logo-darkmode.png",
+    "logo_width": "200",
+    "logo_height": "50",
+    "logo_text": "Samfunn for alle"
+  },
+  "settings": {
+    "search": true,
+    "sticky_header": true,
+    "theme_switcher": true,
+    "default_theme": "system",
+    "pagination": 12,
+    "summary_length": 200,
+    "blog_folder": "blog"
+  },
+  "announcement": {
+    "enable": false,
+    "content": "",
+    "expire_days": 7
+  },
+  "params": {
+    "contact_form_action": "#",
+    "copyright": "© 2025 [Norsk Forbund for Utviklingshemmede](https://www.nfunorge.org). Alle rettigheter reservert."
+  },
+  "navigation_button": {
+    "enable": false,
+    "label": "",
+    "link": ""
+  },
+  "google_tag_manager": {
+    "enable": false,
+    "gtm_id": "GTM-XXXXXX"
+  },
+  "disqus": {
+    "enable": false,
+    "shortname": "",
+    "settings": {}
+  },
+  "metadata": {
+    "meta_author": "Norsk Forbund for Utviklingshemmede",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "Samfunn for alle - Nyheter og informasjon fra Norsk Forbund for Utviklingshemmede"
+  }
+}

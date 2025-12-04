@@ -1,0 +1,64 @@
+---
+import Base from "@/layouts/Base.astro";
+import { getArticles, urlFor } from "@/lib/sanity";
+
+const articles = await getArticles();
+---
+
+<Base title="Artikler">
+  <section class="section">
+    <div class="container">
+      <h1 class="mb-8 text-center text-4xl font-bold">Artikler</h1>
+      
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article: any) => (
+          <article class="rounded-lg border p-4 shadow-sm hover:shadow-md transition-shadow">
+            {article.mainImage && (
+              <a href={`/artikler/${article.slug.current}`}>
+                <img 
+                  src={urlFor(article.mainImage).width(400).height(250).url()} 
+                  alt={article.mainImage.alt || article.displayTitle}
+                  class="mb-4 w-full rounded-lg object-cover"
+                />
+              </a>
+            )}
+            
+            <div class="space-y-2">
+              {article.categories && article.categories.length > 0 && (
+                <div class="flex gap-2">
+                  {article.categories.map((cat: any) => (
+                    <span class="text-xs font-medium text-primary uppercase">
+                      {cat.title}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <h2 class="text-xl font-semibold">
+                <a 
+                  href={`/artikler/${article.slug.current}`}
+                  class="hover:text-primary transition-colors"
+                >
+                  {article.displayTitle || article.title}
+                </a>
+              </h2>
+              
+              {article.standfirst && (
+                <p class="text-gray-600 line-clamp-3">{article.standfirst}</p>
+              )}
+              
+              <div class="flex items-center gap-2 text-sm text-gray-500">
+                {article.authors && article.authors.length > 0 && (
+                  <span>{article.authors.map((a: any) => a.name).join(", ")}</span>
+                )}
+                {article.publishedAt && (
+                  <span>• {new Date(article.publishedAt).toLocaleDateString("nb-NO")}</span>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

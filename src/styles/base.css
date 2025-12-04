@@ -1,0 +1,86 @@
+html {
+  @apply text-base-sm md:text-base;
+}
+body {
+  @apply bg-body text-base dark:bg-darkmode-body font-primary font-normal leading-relaxed text-text dark:text-darkmode-text;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-secondary font-bold leading-tight text-text-dark dark:text-darkmode-text-dark;
+}
+h1,
+.h1 {
+  @apply text-h1-sm md:text-h1;
+}
+h2,
+.h2 {
+  @apply text-h2-sm md:text-h2;
+}
+h3,
+.h3 {
+  @apply text-h3-sm md:text-h3;
+}
+h4,
+.h4 {
+  @apply text-h4;
+}
+h5,
+.h5 {
+  @apply text-h5;
+}
+h6,
+.h6 {
+  @apply text-h6;
+}
+b,
+strong {
+  @apply font-semibold;
+}
+code {
+  @apply after:border-none;
+}
+blockquote > p {
+  @apply my-0!;
+}
+button {
+  @apply cursor-pointer;
+}
+
+/* WCAG: Forbedret fokussynlighet for tastaturnavigasjon */
+*:focus-visible {
+  outline: 2px solid #d27a39;
+  outline-offset: 2px;
+}
+
+/* WCAG: Skip-link styling */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  transform: translateY(-5rem);
+  background-color: #d27a39;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  z-index: 9999;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* WCAG: Sørg for at fokus er synlig på alle interaktive elementer */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #d27a39;
+  outline-offset: 2px;
+}

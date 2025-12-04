@@ -1,0 +1,165 @@
+---
+import Base from "@/layouts/Base.astro";
+import PageHeader from "@/partials/PageHeader.astro";
+import { getArticles, urlFor } from "@/lib/sanity";
+
+// Hent alle artikler (vi filtrerer med JavaScript på klientsiden)
+const allArticles = await getArticles();
+---
+
+<Base title="Søk" description="Søk i alle artikler">
+  <PageHeader title="Søk" />
+  
+  <section class="section-sm">
+    <div class="container max-w-4xl">
+      
+      <!-- Søkefelt -->
+      <div class="mb-12">
+        <div class="relative">
+          <input 
+            type="text" 
+            id="search-input"
+            placeholder="Skriv inn søkeord..."
+            class="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none transition"
+            autofocus
+          />
+          <svg 
+            class="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <p id="search-status" class="mt-3 text-gray-500 text-center"></p>
+      </div>
+      
+      <!-- Søkeresultater -->
+      <div id="search-results" class="space-y-6">
+        <!-- Viser alle artikler som standard -->
+        <p class="text-center text-gray-500">Skriv inn et søkeord for å søke i artikler</p>
+      </div>
+      
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ allArticles }}>
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  const searchStatus = document.getElementById('search-status');
+  
+  // Funksjon for å bygge bilde-URL
+  function getImageUrl(source) {
+    if (!source || !source.asset) return '';
+    
+    const ref = source.asset._ref || source.asset._id || '';
+    const [, assetId, dimensions, format] = ref.split('-');
+    
+    if (!assetId) return '';
+    
+    const projectId = 'smelpf8x';
+    const dataset = 'production';
+    return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-${dimensions}.${format}?w=400&h=250&fit=crop`;
+  }
+  
+  // Funksjon for å vise artikler
+  function displayArticles(articles, searchTerm = '') {
+    if (articles.length === 0) {
+      searchResults.innerHTML = `
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h2 class="text-xl font-semibold mb-2">Ingen resultater</h2>
+          <p class="text-gray-600">Fant ingen artikler som matcher "${searchTerm}"</p>
+        </div>
+      `;
+      return;
+    }
+    
+    searchResults.innerHTML = articles.map(article => `
+      <article class="flex gap-4 p-4 bg-white rounded-xl border hover:shadow-md transition-shadow">
+        ${article.mainImage ? `
+          <a href="/artikler/${article.slug.current}" class="flex-shrink-0">
+            <img 
+              src="${getImageUrl(article.mainImage)}" 
+              alt="${article.mainImage.alt || article.displayTitle || ''}"
+              class="w-32 h-24 object-cover rounded-lg"
+            />
+          </a>
+        ` : ''}
+        
+        <div class="flex-grow">
+          ${article.categories && article.categories.length > 0 ? `
+            <div class="flex gap-2 mb-1">
+              ${article.categories.map(cat => `
+                <span class="text-xs font-semibold text-primary uppercase">${cat.title}</span>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          <h2 class="text-lg font-bold mb-1">
+            <a href="/artikler/${article.slug.current}" class="hover:text-primary transition-colors">
+              ${article.displayTitle || article.title}
+            </a>
+          </h2>
+          
+          ${article.standfirst ? `
+            <p class="text-gray-600 text-sm line-clamp-2">${article.standfirst}</p>
+          ` : ''}
+          
+          <div class="mt-2 text-xs text-gray-500">
+            ${article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('nb-NO') : ''}
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+  
+  // Søkefunksjon
+  function search(term) {
+    const searchTerm = term.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+      searchStatus.textContent = '';
+      searchResults.innerHTML = '<p class="text-center text-gray-500">Skriv inn et søkeord for å søke i artikler</p>';
+      return;
+    }
+    
+const filtered = allArticles.filter(article => {
+  const title = (article.title || '').toLowerCase();
+  const displayTitle = (article.displayTitle || '').toLowerCase();
+  const standfirst = (article.standfirst || '').toLowerCase();
+  const categories = (article.categories || []).map(c => c.title.toLowerCase()).join(' ');
+  const tags = (article.tags || []).map(t => t.title.toLowerCase()).join(' ');
+  
+  return title.includes(searchTerm) || 
+         displayTitle.includes(searchTerm) || 
+         standfirst.includes(searchTerm) ||
+         categories.includes(searchTerm) ||
+         tags.includes(searchTerm);
+});
+    
+    searchStatus.textContent = `Fant ${filtered.length} artikkel${filtered.length !== 1 ? 'er' : ''} for "${term}"`;
+    displayArticles(filtered, term);
+  }
+  
+  // Lytt på input
+  let debounceTimer;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      search(e.target.value);
+    }, 300);
+  });
+  
+  // Håndter URL-parameter (hvis noen lenker til /sok?q=noe)
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryParam = urlParams.get('q');
+  if (queryParam) {
+    searchInput.value = queryParam;
+    search(queryParam);
+  }
+</script>
