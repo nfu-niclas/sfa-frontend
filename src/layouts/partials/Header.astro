@@ -79,7 +79,7 @@ const { pathname } = Astro.url;
                 <ul class="nav-dropdown-list hidden peer-checked:block lg:invisible lg:absolute lg:block lg:opacity-0 lg:group-hover:visible lg:group-hover:opacity-100">
                   {menu.children?.map((child) => (
                     <li class="nav-dropdown-item">
-                      <a
+                      
                         href={child.url}
                         aria-label={child.name}
                         class={`nav-dropdown-link block ${
@@ -96,7 +96,7 @@ const { pathname } = Astro.url;
               </li>
             ) : (
               <li class="nav-item">
-                <a
+                
                   href={menu.url}
                   class={`nav-link block ${
                     (pathname === `${menu.url}/` || pathname === menu.url) &&
@@ -113,7 +113,7 @@ const { pathname } = Astro.url;
       {
         navigation_button.enable && (
           <li class="mt-4 inline-block lg:hidden">
-            <a
+            
               class="btn btn-outline-primary btn-sm"
               href={navigation_button.link}
             >
@@ -138,7 +138,7 @@ const { pathname } = Astro.url;
       <ThemeSwitcher className="mr-5" />
       {
         navigation_button.enable && (
-          <a
+          
             class="btn btn-outline-primary btn-sm hidden lg:inline-block"
             href={navigation_button.link}
           >
